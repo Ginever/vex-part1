@@ -302,7 +302,7 @@ void endOfProgram()
 		_stopflag = 1;
 		lcd_print(LCDLine8, "    Program ended normally.");
 	}
-	delay(5000);
+	delay(10000);
 	exit(0);
 }
 
