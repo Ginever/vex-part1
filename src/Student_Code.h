@@ -1,16 +1,20 @@
 #ifndef STUDENT_CODE_H
 #define STUDENT_CODE_H
 
+/*   Drive Power & Offsets   */
+#define FORWARDMOTORPOWEROFFSET 1.02
+#define FORWARDDRIVESPEED 40.0 //percentage
+#define REVERSEMOTORPOWEROFFSET 1.02
+#define REVERSEDRIVESPEED -40.0 //percentage
 
-#define MOTORPOWEROFFSET 1.02
-#define MOTORPOWER 3000
+/*   Sensor Thresholds   */
 #define BLACKCOLORLEVEL 3000
 
 void student_Main();    // The main entry point to the student code
 
 // Add your function prototypes below
 int convertPower(double powerLevel);
-void driveUntillBlack(double powerPercent);
+void driveUntilBlack(double powerPercent);
 int getAverageLightLevel();
 void armTime(double powerPercent, int milliseconds);
 void driveTime(double leftDrivePower, double rightDrivePower, int milliseconds);
