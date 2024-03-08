@@ -2,13 +2,13 @@
 #define STUDENT_CODE_H
 
 /*   Drive Power & Offsets   */
-#define FORWARDMOTORPOWEROFFSET 1.02
-#define FORWARDDRIVESPEED 40.0 //percentage
-#define REVERSEMOTORPOWEROFFSET 1.02
-#define REVERSEDRIVESPEED -40.0 //percentage
+#define FORWARDMOTORPOWEROFFSET 0.9938
+#define FORWARDDRIVESPEED 35.0 //percentage
+#define REVERSEMOTORPOWEROFFSET 1.071215
+#define REVERSEDRIVESPEED -35.0 //percentage
 
 /*   Sensor Thresholds   */
-#define BLACKCOLORLEVEL 3000
+#define BLACKCOLORLEVEL 1450
 
 void student_Main();    // The main entry point to the student code
 

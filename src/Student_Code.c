@@ -26,36 +26,57 @@ ________________________________ TODO ________________________________
     done  Write driveUntilBlack function - Zac
     done  Write armTime function - Zac
     done  Write driveTime function - Zac
-    todo  Determine what motor powers we are using - in Lab
-    todo  Find motor power offsets - in Lab
-    todo  Find BLACKCOLORLEVEL and figure out logic for driveUntilBlack() - in Lab
-    todo  Write code for navigating around the map and completing the task - TBD
+    done  Determine what motor powers we are using - in Lab
+    done  Find motor power offsets - in Lab
+    done  Find BLACKCOLORLEVEL and figure out logic for driveUntilBlack() - in Lab
+    done  WWrite Logic for navigating around map
+    todo Fiqure out timing for a 90 degree turn
+    todo Fiqure out drive times for non-driveUntilBlack distances
 */
 
 void student_Main()
 {
-    resetEncoder(RightEncoder);
-    resetEncoder(LeftEncoder);
-    motorPower(RightMotor, convertPower(FORWARDDRIVESPEED*FORWARDMOTORPOWEROFFSET));
-    motorPower(LeftMotor, convertPower(FORWARDDRIVESPEED));
+    //Putting arm in required position
+    armUp(5000);
+    delay(200);
+    armTime(-30, 2000);
 
-    resetTimer(T_1);
+    //* I have put the drive offsets into the functions
+    driveUntilBlack(FORWARDDRIVESPEED);
 
-    while(readTimer(T_1) < 5000){
-        lcd_print(LCDLine1 , " Motor encoders = %d, %d diffrence: %d" , readSensor(LeftEncoder), readSensor(RightEncoder), readSensor(LeftEncoder)/readSensor(RightEncoder)); 
-        lcd_print(LCDLine2, "Light level %d %d %d average: %d", readSensor(LeftLight), readSensor(MidLight), readSensor(RightLight), getAverageLightLevel());
-        delay(50);
-    }
+    //picking up payload
+    armUp(3000);
+
+    //Drive to turn position
+    //* I have put the drive offsets into the functions
+    driveTime(FORWARDDRIVESPEED, FORWARDDRIVESPEED, 500);
+    driveUntilBlack(FORWARDDRIVESPEED);
+
+    //Turn 90 degrees to face the direction of the drop off point
+    driveTime(FORWARDDRIVESPEED, REVERSEDRIVESPEED, 1000);
+
+    driveUntilBlack(FORWARDDRIVESPEED);
+
+    //drop payload
+    armTime(-30, 2000);
+
+    //Reverse away from payload to get arm clear
+    driveTime(REVERSEDRIVESPEED, REVERSEDRIVESPEED, 500);
+
+    armUp(3000);
+
+    //turn 180 degrees
+    driveTime(FORWARDDRIVESPEED, REVERSEDRIVESPEED, 2000);
+
+    driveUntilBlack(FORWARDDRIVESPEED);
+
+    //Turn 90 degrees
+    driveTime(FORWARDDRIVESPEED, REVERSEDRIVESPEED, 1000);
+
+    //drive until in charging zone
+    driveTime(FORWARDDRIVESPEED, FORWARDDRIVESPEED, 4000);
 
     motorStopAll();
-
-    //Designed to check if the robot ceases motion after above functions have been completed
-    //will help prevent functions breaking other functions when complied together
-    //todo remove when testing individual functions is completed
-    lcd_print(LCDLine7, "Logic Finished");
-    delay(2000);
-    lcd_clear_line(LCDLine7);
-
 }
 
 
@@ -83,14 +104,28 @@ int convertPower(double powerLevel){
  * @param power percentage (-100 to 100) controlling drive speed
 */
 void driveUntilBlack(double power){
-    //Set motors to required power level
-    motorPower(LeftMotor, convertPower(power));
-    motorPower(RightMotor, convertPower(power));
+    //convert percentage power to mV
+    int leftPower = convertPower(power);
+    int rightPower = leftPower;
 
-    //todo adjust values and logic in lab to make it work
+    //apply power offset to make the robot drive straight
+    if (leftPower > 0){
+        leftPower = leftPower * FORWARDMOTORPOWEROFFSET;
+    } else {
+        leftPower = leftPower * REVERSEMOTORPOWEROFFSET;
+    }
+
+    //Set motors to required power level
+    motorPower(LeftMotor, leftPower);
+    motorPower(RightMotor, rightPower);
+
+    //Wait until infrared light sensors detect black
     while(getAverageLightLevel() < BLACKCOLORLEVEL){
+        lcd_print(LCDLine2, "%d %d %d a: %d", readSensor(LeftLight), readSensor(MidLight), readSensor(RightLight), getAverageLightLevel());
         delay(50);
     }
+
+    //Stop motors
     motorPower(LeftMotor, 0);
     motorPower(RightMotor, 0);
 }
@@ -113,7 +148,13 @@ int getAverageLightLevel(){
  * @param milliseconds Duration in milliseconds the motor is moving for
 */
 void armTime(double armPower, int milliseconds){
-    motorPower(ArmMotor, convertPower(armPower));
+    //convert percentage power into mV
+    int power = convertPower(armPower);
+
+    //Start arm moving
+    motorPower(ArmMotor, power);
+
+    //Stop arm after specifed delay
     delay(milliseconds);
     motorPower(ArmMotor, 0);
 }
@@ -126,8 +167,22 @@ void armTime(double armPower, int milliseconds){
  * @param milliseconds Duration in milliseconds the robot is driving for
 */
 void driveTime(double leftDrivePower, double rightDrivePower, int milliseconds){
-    motorPower(LeftMotor, convertPower(leftDrivePower));
-    motorPower(RightMotor, convertPower(rightDrivePower));
+    //Convert percentage power to power in mV
+    int leftPower = convertPower(leftDrivePower);
+    int rightPower = convertPower(rightDrivePower);
+
+    //Apply drive power offset to drive the robot straight if required
+    if (leftPower > 0 && rightPower == leftPower){
+        leftPower = leftPower*FORWARDMOTORPOWEROFFSET;
+    } else if (rightPower == leftPower){
+        leftPower = leftPower*REVERSEMOTORPOWEROFFSET;
+    }
+
+    //Set motor power
+    motorPower(LeftMotor, leftPower);
+    motorPower(RightMotor, rightPower);
+
+    //Stop wheels after specified delay
     delay(milliseconds);
     motorPower(LeftMotor, 0);
     motorPower(RightMotor, 0);
