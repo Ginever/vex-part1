@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Part1Project",
+    "project_name": "driveUntilBlack",
     "target": "v5",
     "templates": {
       "kernel": {
@@ -312,7 +312,7 @@
       "icon": "clawbot",
       "after": "screen",
       "slot": 1,
-      "description": "Prototyping an autonomous robot to deliver stock"
+      "description": "A program to automate warehouse stuff"
     }
   }
 }
